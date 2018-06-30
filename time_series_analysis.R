@@ -69,7 +69,26 @@ kpss.test(diff(log(AirPassengers))) ## p-value : 0.1 위의 값보다 나아졌�
 ##   p 차수, q 차수, d 차분을 결정하기 위해서는 
 ##   KPSS test4, ACF, PACF 를 그려보아야 함
 ##   R의 auto.arima를 통해 한번에 해결???
+##    order <- c(p, d, q)
 para_AirP <- auto.arima(AirPassengers)
+names(para_AirP)
+para_AirP$arma     # p,q, P,Q, m, d,D
+para_AirP$model
+para_AirP$bic
+para_AirP$fitted
+para_AirP$coef
+para_AirP$var.coef
+para_AirP$sigma2
+para_AirP$series
+para_AirP$mask
+para_AirP$loglik
+para_AirP$call
+para_AirP$code
+para_AirP$n.cond
+para_AirP$nobs
+para_AirP$x
+para_AirP
+arimaorder(para_AirP)  # c(2,1,1), C(0, 1, 0), period=12
 #
 # Series: AirPassengers 
 # ARIMA(2,1,1)(0,1,0)[12] 
@@ -81,6 +100,7 @@ para_AirP <- auto.arima(AirPassengers)
 # AIC=1017.85   AICc=1018.17   BIC=1029.35
 
 para_diff_log_AirP <- auto.arima(diff(log(AirPassengers)))
+arimaorder(para_diff_log_AirP)
 # Series: diff(log(AirPassengers)) 
 # ARIMA(0,0,1)(0,1,1)[12] 
 # Coefficients:
@@ -92,7 +112,7 @@ para_diff_log_AirP <- auto.arima(diff(log(AirPassengers)))
 
 
 para_log_AirP <- auto.arima(log(AirPassengers))
-para_log_AirP
+arimaorder(para_log_AirP)
 # Series: log(AirPassengers) 
 # ARIMA(0,1,1)(0,1,1)[12] 
 # Coefficients:
@@ -117,6 +137,33 @@ fit2 <- arima(diff(log(AirPassengers)), c(0,0,1), seasonal = list( order=c(0,1,1
 
 fit3 <- arima(log(AirPassengers), c(0,1,1), seasonal=list( order=c(0,1,1), period=12))
 
+
+## fit 값 비교
+## AIC (Akaike Information Criterion) 
+##  
+fit1$aic
+fit2$aic
+fit3$aic
+fit1
+fit3
+Acf(residuals(fit1))
+Acf(residuals(fit2))
+Acf(residuals(fit3))
+
+fit0 <- auto.arima(AirPassengers,seasonal = TRUE)
+fit0$aic
+Acf(residuals(fit0))
+pred0 <- predict(fit0, n.ahead=10*12)
+par(mfrow = c(2,1))
+ts.plot(AirPassengers, pred0$pred)
+ts.plot(AirPassengers, pred0$pred, log="y")
+par(mfrow= c(1,1))
+
+tsdisplay(residuals(fit0), lag.max=30, main = "(2,1,1) Model Residuals")
+
+forecast0 <- forecast(fit0, h=10*12)
+plot(forecast0)
+
 ## 미래 추이 예측
 par(mfrow= c(3,1))
 pred1 <- predict(fit1, n.ahead =  10*12)
@@ -136,7 +183,31 @@ ts.plot(AirPassengers, 2.718^pred3$pred, log="y")
 ##   seasonality 조정   :  fpp 패키지의 seasadj() 함수
 ##     계절 요인을 additive 혹은 multiplicative 하게 할 수 있음
 
+stl_Passengers <- stl(AirPassengers, s.window = "periodic")
+plot( stl_Passengers )
+class( stl_Passengers)
+names( stl_Passengers )
+stl_Passengers["time.series"]$time.series[,"seasonal"]  ## 12개월에 따른 seasonality
+adj_AirPassengers <- seasadj(stl(AirPassengers, s.window = "periodic"))
+plot(adj_AirPassengers)
+plot(stl(adj_AirPassengers, s.window = "periodic"))
+################ seasonality를 뺀 값 사용
+nosea_AirPassengers <- AirPassengers - stl_Passengers["time.series"]$time.series[,"seasonal"]
 
+plot.ts(diff(nosea_AirPassengers, differences = 1))
+plot.ts(diff(nosea_AirPassengers, differences = 2))
+plot.ts(diff(nosea_AirPassengers, differences = 3))
+
+############## adj_Airpassengers 사용
+plot.ts(diff(adj_AirPassengers, differences = 1))        # 정상성 그림 d = 1
+plot.ts(diff(adj_AirPassengers, differences = 2))
+plot.ts(diff(adj_AirPassengers, differences = 3))
+
+acf(diff(adj_AirPassengers, differences = 1), lag.max = 24) # MA(1) : 1 inner
+pacf(diff(adj_AirPassengers, differences = 1), lag.max = 24) # AR(1) : 1 inner
+
+######################################################
+par(mfrow=c(3,1))
 plot.ts(diff(AirPassengers, differences = 1))  ## 이게 가장 좋아 보임 d = 1
 plot.ts(diff(AirPassengers, differences = 2)) 
 plot.ts(diff(AirPassengers, differences = 3))
@@ -146,8 +217,9 @@ par(mfrow = c(1,1))
 acf(diff1_AirPassengers, lag.max = 10 , )  # 다소 나가기는 하는데.. n = 2 이후
                                         # 점선 내...  MA(1)
 
-pacf(diff1_AirPassengers, lag.max = 20)
-
+pacf(diff1_AirPassengers, lag.max = 20)   # n=
+# seasonality 를 없앤 후에 해야 하지 않을까?
+##############################
 
 
 ##    
