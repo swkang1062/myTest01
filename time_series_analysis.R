@@ -164,6 +164,9 @@ tsdisplay(residuals(fit0), lag.max=30, main = "(2,1,1) Model Residuals")
 forecast0 <- forecast(fit0, h=10*12)
 plot(forecast0)
 
+############ better model ??? 
+
+
 ## 미래 추이 예측
 par(mfrow= c(3,1))
 pred1 <- predict(fit1, n.ahead =  10*12)
@@ -188,6 +191,8 @@ plot( stl_Passengers )
 class( stl_Passengers)
 names( stl_Passengers )
 stl_Passengers["time.series"]$time.series[,"seasonal"]  ## 12개월에 따른 seasonality
+
+########### additive adjustment
 adj_AirPassengers <- seasadj(stl(AirPassengers, s.window = "periodic"))
 plot(adj_AirPassengers)
 plot(stl(adj_AirPassengers, s.window = "periodic"))
@@ -206,11 +211,44 @@ plot.ts(diff(adj_AirPassengers, differences = 3))
 acf(diff(adj_AirPassengers, differences = 1), lag.max = 24) # MA(1) : 1 inner
 pacf(diff(adj_AirPassengers, differences = 1), lag.max = 24) # AR(1) : 1 inner
 
+#############
+install.packages("Ecdat")
+library(Ecdat)
+
+
+ts_air <- ts(AirPassengers, frequency = 12, start = 1949)
+decompose_air_mul <- decompose(ts_air, "multiplicative")
+decompose_air_add <- decompose(ts_air, "additive")
+adjust_air_mul <- ts_air/decompose_air_mul$seasonal
+adjust_air_add <- ts_air - decompose_air_add$seasonal
+par(mfrow = c(2,1))
+plot(adjust_air_add, col="blue")
+plot(adjust_air_mul, col="red")
+
+decompose_air_add$seasonal
+decompose_air_mul$seasonal
+## multiplicative 가 더 적당할까?
+## decompose data로 시계열 후에.. ARIMA 적용
+## 결과에 곱함..
+
+
 ######################################################
 par(mfrow=c(3,1))
 plot.ts(diff(AirPassengers, differences = 1))  ## 이게 가장 좋아 보임 d = 1
 plot.ts(diff(AirPassengers, differences = 2)) 
 plot.ts(diff(AirPassengers, differences = 3))
+
+#######################################
+# periodic 수 만큼 diff 한다면
+plot.ts(diff(AirPassengers, differences = 12)) # 가장 좋기는 하다....
+## fit12 <- arima(AirPassengers, c(2,1,1), seasonal=list(order=c(0,1,0), period= 12))
+## d 를 12로 하면 error
+## Error in optim(init[mask], armafn, method = optim.method, hessian = TRUE,  : 
+## initial value in 'vmmin' is not finite
+
+
+####################################
+
 
 diff1_AirPassengers <- diff(AirPassengers, differences = 1)
 par(mfrow = c(1,1))
