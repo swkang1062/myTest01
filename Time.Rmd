@@ -1,0 +1,35 @@
+---
+title: "R Analysis : TimeSeries"
+author: "SW Kang"
+date: "2018년 7월 3일"
+output: html_document
+---
+
+##  시계열 분석
+### 안정적 시계열 (Stationary Time Series)
+#### 1. 시간에 따른 평균이 불변
+#### 2. 시간에 따른 분산이 불변
+#### 3. 시점에 따른 공분산이 불변
+
+## STL(Stationary, Trend, )
+
+### 안정적이지 않은 경우, 안정적이 될 수 있도록 변환 후 시계열 적용
+
+#### ARIMA 분석 순서
+####  1. 시각화하여 안정적 시계열인지 확인
+####  2. 안정적 시계열 자료로 변환
+####  3. ACF(Auto Correlation Function)/PACF(Partial Correlation Function)
+####      혹은 auto.arima를 이용하여 최적화된 파라미터를 찾음
+####  4. ARIMA 모형 구축
+####  5. (필요한 경우) 미래에 추이에 대한 예측
+```{r}
+
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
