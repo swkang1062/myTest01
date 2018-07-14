@@ -22,6 +22,7 @@ library(tseries)
 library(forecast)
 library(fpp)
 
+
 str(AirPassengers)
 
 plot(AirPassengers)
