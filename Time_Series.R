@@ -153,6 +153,8 @@ mul_fore_comp$upper <- mul_fore_random$upper *
 mul_fore_comp$lower <- mul_fore_random$lower * 
   mul_fore_trend$lower * mul_fore_season$lower
 
+
+
 par(mfrow=c(1,1))
 plot(add_fore_comp)
 plot(mul_fore_comp)
@@ -169,6 +171,7 @@ forecast_unlog$mean <- 10^forecast_log$mean
 forecast_unlog$upper <- 10^forecast_log$upper
 forecast_unlog$lower <- 10^forecast_log$lower
 plot(forecast_unlog)
+
 
 ### ====================
 ## forecast 의 upper bound 보다 큰 값을 outlier로 볼 수 있을까?
